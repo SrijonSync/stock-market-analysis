@@ -1,162 +1,176 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
+import pandas as pd
+import numpy as np
+import matplotlib as mlb
+import matplotlib.pyplot as plt
+import seaborn as sns
 
-# C extensions
-*.so
+#Part-1
+df=pd.read_csv(r"D:\Stock Market\Stock_Market_Data.csv")
+df.head()
+######Calculate basic summary statistics for each column (mean, median, standard deviation, etc.).
+summary_stats = df.describe()
 
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
+######Explore the distribution of the 'Close' prices over time.
+plt.figure(figsize=(14,7))
+plt.plot(df['Close'])
+plt.title('Close Price Over Time')
+plt.xlabel('Date')
+plt.ylabel('Close Price')
+plt.show()
+#####Identify and analyze any outliers (if any) in the dataset.
+z_scores = (df['Close'] - df['Close'].mean()) / df['Close'].std()
+outliers = df[abs(z_scores) > 3]
 
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
+df
+#####Part 2
+####Create a line chart to visualize the 'Close' prices over time.
+df['Close'].plot(title='Stock Prices Over Time')
 
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
 
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
-.pytest_cache/
-cover/
+####Calculate and plot the daily percentage change in closing prices.
+df['Daily_Return'] = df['Close'].pct_change() * 100
 
-# Translations
-*.mo
-*.pot
+plt.figure(figsize=(14,7))
+plt.plot(df['Daily_Return'])
+plt.title('Daily Percentage Change in Closing Price')
+plt.xlabel('Date')
+plt.ylabel('Percentage Change (%)')
+plt.show()
 
-# Django stuff:
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
 
-# Flask stuff:
-instance/
-.webassets-cache
 
-# Scrapy stuff:
-.scrapy
+####Investigate the presence of any trends or seasonality in the stock prices.
 
-# Sphinx documentation
-docs/_build/
+####Apply moving averages to smooth the time series data in 15/30 day intervals against the original graph.
+df['MA_15'] = df['Close'].rolling(window=15).mean()
+df['MA_30'] = df['Close'].rolling(window=30).mean()
 
-# PyBuilder
-.pybuilder/
-target/
+plt.figure(figsize=(14,7))
+plt.plot(df['Close'], label='Original')
+plt.plot(df['MA_15'], label='15-Day MA')
+plt.plot(df['MA_30'], label='30-Day MA')
+plt.title('Close Price with Moving Averages')
+plt.xlabel('Date')
+plt.ylabel('Close Price')
+plt.legend()
+plt.show()
+########Calculate the average closing price for each stock.
+import pandas as pd
 
-# Jupyter Notebook
-.ipynb_checkpoints
 
-# IPython
-profile_default/
-ipython_config.py
+average_closing_prices = df.groupby('Name')['Close'].mean().reset_index()
 
-# pyenv
-#   For a library or package, you might want to ignore these files since the code is
-#   intended to run in multiple environments; otherwise, check them in:
-# .python-version
+top_5_stocks = average_closing_prices.nlargest(5, 'Close')
+bottom_5_stocks = average_closing_prices.nsmallest(5, 'Close')
 
-# pipenv
-#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
-#   However, in case of collaboration, if having platform-specific dependencies or dependencies
-#   having no cross-platform support, pipenv may install dependencies that don't work, or not
-#   install all needed dependencies.
-#Pipfile.lock
 
-# poetry
-#   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
-#   This is especially recommended for binary packages to ensure reproducibility, and is more
-#   commonly ignored for libraries.
-#   https://python-poetry.org/docs/basic-usage/#commit-your-poetrylock-file-to-version-control
-#poetry.lock
+print("Top 5 stocks based on average closing price:")
+print(top_5_stocks)
+print("\nBottom 5 stocks based on average closing price:")
+print(bottom_5_stocks)
 
-# pdm
-#   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
-#pdm.lock
-#   pdm stores project-wide configurations in .pdm.toml, but it is recommended to not include it
-#   in version control.
-#   https://pdm.fming.dev/latest/usage/project/#working-with-version-control
-.pdm.toml
-.pdm-python
-.pdm-build/
 
-# PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
-__pypackages__/
+####Identify the top 5 and bottom 5 stocks based on average closing price.
+import pandas as pd
 
-# Celery stuff
-celerybeat-schedule
-celerybeat.pid
 
-# SageMath parsed files
-*.sage.py
 
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
+average_closing_prices = df.groupby('Name')['Close'].mean()
 
-# Spyder project settings
-.spyderproject
-.spyproject
 
-# Rope project settings
-.ropeproject
+top_5_stocks = average_closing_prices.sort_values(ascending=False).head(5)
 
-# mkdocs documentation
-/site
 
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
+bottom_5_stocks = average_closing_prices.sort_values(ascending=True).head(5)
 
-# Pyre type checker
-.pyre/
+top_5_stocks, bottom_5_stocks
 
-# pytype static type analyzer
-.pytype/
 
-# Cython debug symbols
-cython_debug/
 
-# PyCharm
-#  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
-#  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
-#  and can be added to the global gitignore or merged into this file.  For a more nuclear
-#  option (not recommended) you can uncomment the following to ignore the entire idea folder.
-#.idea/
+####Part 3
+####Calculate and plot the rolling standard deviation of the 'Close' prices.
+
+df['Rolling_Std'] = df['Close'].rolling(window=30).std()
+
+plt.figure(figsize=(12, 6))
+df['Rolling_Std'].plot(title='Rolling Standard Deviation of Close Prices')
+plt.xlabel('Date')
+plt.ylabel('Rolling Standard Deviation')
+plt.show()
+
+
+
+
+
+
+####Create a new column for daily price change (Close - Open).
+df['Daily_Price_Change'] = df['Close'] - df['Open']
+df
+####Analyze the distribution of daily price changes.
+import pandas as pd
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(10, 6))
+plt.hist(df['Daily_Price_Change'], bins=50, alpha=0.75)
+plt.title('Distribution of Daily Price Changes')
+plt.xlabel('Price Change')
+plt.ylabel('Frequency')
+plt.grid(True)
+plt.show()
+
+####dentify days with the largest price increases and decreases.
+
+largest_increase = df.loc[df['Daily_Price_Change'].idxmax()]
+
+
+largest_decrease = df.loc[df['Daily_Price_Change'].idxmin()]
+
+
+print("Day with the largest price increase:")
+print(largest_increase)
+
+print("\nDay with the largest price decrease:")
+print(largest_decrease)
+
+####Identify stocks with unusually high trading volume on certain days.
+
+mean_volume = df['Volume'].mean()
+std_volume = df['Volume'].std()
+
+
+threshold = mean_volume + 2 * std_volume
+
+
+unusual_volume_days = df[df['Volume'] > threshold]
+
+
+print("Days with unusually high trading volume:")
+print(unusual_volume_days)
+
+
+
+####part 4
+#####Explore the relationship between trading volume and volatility.
+df['Volatility'] = df['High'] - df['Low']
+
+
+correlation_volume_volatility = df['Volume'].corr(df['Volatility'])
+
+
+print(f"Correlation between trading volume and volatility: {correlation_volume_volatility}")
+#####Calculate the correlation matrix between the 'Open' & 'High', 'Low' &'Close' prices.
+
+
+correlation_matrix = df[['Open', 'High', 'Low', 'Close']].corr()
+
+
+print("Correlation matrix between 'Open', 'High', 'Low', and 'Close':")
+print(correlation_matrix)
+
+####Create a heatmap to visualize the correlations using the seaborn package.
+sns.set(style="white")
+plt.figure(figsize=(8, 6))
+heatmap = sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt='.2f')
+plt.title('Correlation Heatmap of Stock Prices')
+plt.show()
+
